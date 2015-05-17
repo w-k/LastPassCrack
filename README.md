@@ -1,44 +1,21 @@
-LastPass C# API
+LastPassCrack
 ===============
 
-**This is unofficial LastPass API.**
+This can be used as a tool for cracking the Lastpass Firefox add-on cache. Realistically, it can be useful  when you don't remember the password exactly but have a good idea of what it may be. It's a fork of [lastpass-sharp] (https://github.com/detunized/lastpass-sharp) with added basic command line interface and local cache decryption. 
 
-This is a port of [Ruby API](https://github.com/detunized/lastpass-ruby).
+It uses [Generex] (https://github.com/mifmif/Generex) to generate combination based on a regex string. Because of that, it requires Java JDK to be installed and JAVA_HOME environment variable pointing to it.
 
-This library implements fetching and parsing of LastPass data.  The library is
-still in the proof of concept stage and doesn't support all LastPass features
-yet.  Only account information (logins, passwords, urls, etc.) is available so
-far.
+Execute LastpassCrack.exe from command line, specifying the following arguments:
 
-There is a low level API which is used to fetch the data from the LastPass
-server and parse it. Normally this is not the one you would want to use. What
-you want is the `Vault` class which hides all the complexity and exposes all
-the accounts already parsed, decrypted and ready to use. See the example
-program for detail.
+--username - Lastpass username
+--password - regex string specifying the combinations to try out. For example, [a-z]{6} would go through  all 6-letter lower case combinations. 
+--slps - the path to the slps file found in AppData/local_low/LastPass directory
+--sxml - the path to the sxml file in the above directory
 
-A quick example of accessing your account information:
+Running this command will attempt to try all combinations and return the decrypted data to the standard output:
 
-```csharp
-using LastPass;
+LastPassCrack.exe --username user@email.com --password "\$ecret[0-9]{3}" --slps C:\Users\Username\AppData\LocalLow\LastPass\xxx_lpall.slps --sxml C:\Users\P\AppData\LocalLow\LastPass\xxx_lps.act.sxml > decrypted.csv
 
-var vault = Vault.Create(username, password);
-foreach (var i in vault.Accounts)
-    Console.WriteLine("{0}: {1}, {2}", i.Name, i.Username, i.Password);
-```
+The files stored by the LastPass Firefox add-on are protected using the Data Protection API on Windows. They can be only unprotected on the same machine on which they were protected. You can run LastpassCrack --unprotect <path> to do that, for example:
 
-The blob received from LastPass could be safely stored locally (it's well
-encrypted) and reused later on.
-
-
-Contributing
-------------
-
-Contribution in any form and shape is very welcome.  Have comments,
-suggestions, patches, pull requests?  All of the above are welcome.
-
-
-License
--------
-
-The library is released under [the MIT
-license](http://www.opensource.org/licenses/mit-license.php).
+LastPassCrack.exe --unprotect C:\Users\Username\AppData\LocalLow\LastPass\xxx_lpall.slps > unprotected.slps

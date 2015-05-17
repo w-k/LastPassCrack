@@ -10,7 +10,7 @@ using System.Security.Cryptography;
 
 namespace LastPass
 {
-    static class ParserHelper
+    public static class ParserHelper
     {
         public class Chunk
         {
@@ -47,24 +47,11 @@ namespace LastPass
                 var username = DecryptAes256Plain(ReadItem(reader), encryptionKey, placeholder);
                 var password = DecryptAes256Plain(ReadItem(reader), encryptionKey, placeholder);
                 2.Times(() => SkipItem(reader));
-                var secureNoteMarker = ReadItem(reader).ToUtf8();
-
-                // Parse secure note
-                if (secureNoteMarker == "1")
-                {
-                    var type = "";
-                    ParseSecureNoteServer(notes, ref type, ref url, ref username, ref password);
-
-                    // Only the some secure notes contain account-like information
-                    if (!AllowedSecureNoteTypes.Contains(type))
-                        return null;
-                }
 
                 // Override the group name with the shared folder name if any.
                 if (folder != null)
                     group = folder.Name;
-
-                return new Account(id, name, username, password, url, group);
+                return new Account(id, name, username, password, url, group, notes);
             });
         }
 
@@ -310,7 +297,7 @@ namespace LastPass
             if (data.Length == 0)
                 return "";
 
-            using (var aes = new AesManaged {KeySize = 256, Key = encryptionKey, Mode = mode, IV = iv})
+            using (var aes = new AesManaged {KeySize = 256, Key = encryptionKey, Mode = mode, IV = iv, Padding = PaddingMode.Zeros})
             using (var decryptor = aes.CreateDecryptor())
             using (var stream = new MemoryStream(data, false))
             using (var cryptoStream = new CryptoStream(stream, decryptor, CryptoStreamMode.Read))

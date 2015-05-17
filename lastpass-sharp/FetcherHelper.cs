@@ -6,7 +6,7 @@ using System.Security.Cryptography;
 
 namespace LastPass
 {
-    static class FetcherHelper
+    public static class FetcherHelper
     {
         public static byte[] MakeKey(string username, string password, int iterationCount)
         {

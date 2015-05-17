@@ -1,6 +1,7 @@
 // Copyright (C) 2013 Dmitry Yakimenko (detunized@gmail.com).
 // Licensed under the terms of the MIT license. See LICENCE for details.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
@@ -27,7 +28,7 @@ namespace LastPass
 
         // TODO: Make a test for this!
         // TODO: Extract some of the code and put it some place else.
-        private Vault(Blob blob, byte[] encryptionKey)
+        public Vault(Blob blob, byte[] encryptionKey)
         {
             ParserHelper.WithBytes(blob.Bytes, reader => {
                 var chunks = ParserHelper.ExtractChunks(reader);
@@ -46,6 +47,9 @@ namespace LastPass
         private Account[] ParseAccounts(List<ParserHelper.Chunk> chunks, byte[] encryptionKey)
         {
             var accounts = new List<Account>(chunks.Count(i => i.Id == "ACCT"));
+            var idCounts = from c in chunks
+                           group c by c.Id into g
+                           select new { Id = g.Key, Count = g.Count()};
             SharedFolder folder = null;
             var rsaKey = new RSAParameters();
 

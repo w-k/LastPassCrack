@@ -7,7 +7,7 @@ using System.Text;
 
 namespace LastPass
 {
-    static class Extensions
+    public static class Extensions
     {
         public static uint Reverse(this uint x)
         {
